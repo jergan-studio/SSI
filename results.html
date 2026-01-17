@@ -15,14 +15,13 @@ body {
 
 header {
   padding: 15px;
-  display: flex;
-  gap: 10px;
   border-bottom: 1px solid #222;
 }
 
-input, select, button {
-  padding: 10px;
-  border-radius: 15px;
+header input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 20px;
   border: none;
 }
 
@@ -34,10 +33,51 @@ input, select, button {
 }
 
 .result {
-  margin: 15px;
+  margin: 15px 20px;
   padding: 15px;
   background: #141730;
   border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.result:hover {
+  background: #1c214a;
+}
+
+.result img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.preview {
+  display: none;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  width: 260px;
+  background: #000;
+  border: 1px solid #5a7cff;
+  padding: 10px;
+  z-index: 10;
+}
+
+.result:hover .preview {
+  display: block;
+}
+
+.preview iframe {
+  width: 100%;
+  height: 140px;
+  border: none;
+  background: #000;
+}
+
+.preview p {
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
 </style>
 </head>
@@ -45,11 +85,6 @@ input, select, button {
 
 <header>
   <input id="searchBox">
-  <select id="engine">
-    <option value="duck">DuckDuckGo</option>
-    <option value="local">Local</option>
-  </select>
-  <button onclick="saveSearch()">⭐ Save</button>
 </header>
 
 <div class="ai" id="ai"></div>
@@ -60,75 +95,71 @@ const params = new URLSearchParams(location.search);
 const query = params.get("q") || "";
 searchBox.value = query;
 
-const LOCAL = [
-  { title: "VORD VOID", desc: "AI search engine", url: "#" },
-  { title: "Square Dodge", desc: "2.5D game", url: "#" }
-];
+const resultsDiv = document.getElementById("results");
 
-function currentUser() {
-  const u = localStorage.getItem("vv_current");
-  if (!u) return null;
-  return JSON.parse(localStorage.getItem("vv_users"))
-    .find(x => x.username === u);
+function aiThink() {
+  ai.textContent =
+    `VORD VOID THINKS: "${query}" may lead you to websites, tools, or references related to this topic.`;
 }
 
-function saveSearch() {
-  const users = JSON.parse(localStorage.getItem("vv_users"));
-  const user = currentUser();
-  if (!user) return alert("Login first");
+function addResult(title, desc, url) {
+  const domain = new URL(url).origin;
+  const favicon = domain + "/favicon.ico";
 
-  user.saved.push(query);
-  localStorage.setItem("vv_users", JSON.stringify(users));
-  alert("Search saved");
-}
+  const div = document.createElement("div");
+  div.className = "result";
+  div.onclick = () => window.open(url, "_blank");
 
-function aiThink(snips) {
-  return snips.length
-    ? `VORD VOID THINKS: "${query}" relates to ${snips.join(", ")}`
-    : `VORD VOID found no strong signals.`;
+  div.innerHTML = `
+    <h3>
+      <img src="${favicon}" onerror="this.style.display='none'">
+      ${title}
+    </h3>
+    <p>${desc}</p>
+
+    <div class="preview">
+      <iframe src="${url}"></iframe>
+      <p>Preview (if allowed)</p>
+    </div>
+  `;
+
+  resultsDiv.appendChild(div);
 }
 
 async function run() {
-  let snippets = [];
-  results.innerHTML = "";
+  aiThink();
 
-  if (engine.value === "duck") {
-    const r = await fetch(
-      `https://api.duckduckgo.com/?q=${query}&format=json&no_html=1`
+  const res = await fetch(
+    `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`
+  );
+  const data = await res.json();
+
+  if (data.AbstractURL) {
+    addResult(
+      data.Heading || query,
+      data.AbstractText || "Instant answer",
+      data.AbstractURL
     );
-    const d = await r.json();
-    if (d.AbstractText) {
-      snippets.push(d.Heading);
-      results.innerHTML += `
-        <div class="result">
-          <h3>${d.Heading}</h3>
-          <p>${d.AbstractText}</p>
-        </div>`;
+  }
+
+  data.RelatedTopics.slice(0, 5).forEach(t => {
+    if (t.FirstURL) {
+      addResult(
+        t.Text.split(" - ")[0],
+        t.Text,
+        t.FirstURL
+      );
     }
-  }
-
-  if (engine.value === "local") {
-    LOCAL.filter(x =>
-      x.title.toLowerCase().includes(query.toLowerCase())
-    ).forEach(r => {
-      snippets.push(r.title);
-      results.innerHTML += `
-        <div class="result">
-          <h3>${r.title}</h3>
-          <p>${r.desc}</p>
-        </div>`;
-    });
-  }
-
-  ai.textContent = aiThink(snippets);
+  });
 }
 
 searchBox.addEventListener("keydown", e => {
-  if (e.key === "Enter")
-    location.href = `results.html?q=${encodeURIComponent(searchBox.value)}`;
+  if (e.key === "Enter") {
+    location.href =
+      "results.html?q=" + encodeURIComponent(searchBox.value);
+  }
 });
 
-engine.onchange = run;
 run();
 </script>
 
