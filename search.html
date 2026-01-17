@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f1220;
+      color: white;
+      padding: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 15px;
+    }
+
+    .result {
+      background: #1c2040;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .result h3 {
+      margin: 0 0 5px;
+    }
+
+    .result p {
+      opacity: 0.8;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Search</h1>
+<input id="searchBox" placeholder="Type to search..." />
+
+<div id="results"></div>
+
+<script>
+  const data = [
+    { title: "VORD VOID", desc: "AI that helps with HTML files" },
+    { title: "Giznoz", desc: "An experimental AI assistant" },
+    { title: "Square Dodge", desc: "A 2.5D HTML game" },
+    { title: "Lost In Mind", desc: "A psychological horror game" }
+  ];
+
+  const box = document.getElementById("searchBox");
+  const results = document.getElementById("results");
+
+  box.addEventListener("input", () => {
+    const q = box.value.toLowerCase();
+    results.innerHTML = "";
+
+    if (!q) return;
+
+    data.forEach(item => {
+      if (
+        item.title.toLowerCase().includes(q) ||
+        item.desc.toLowerCase().includes(q)
+      ) {
+        const div = document.createElement("div");
+        div.className = "result";
+        div.innerHTML = `<h3>${item.title}</h3><p>${item.desc}</p>`;
+        results.appendChild(div);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
