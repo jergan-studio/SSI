@@ -1,78 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VORD VOID</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>VORD VOID</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0b0d1a;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at top, #12002a, #000);
+  color: #aee7ff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .container {
-      text-align: center;
-      width: 90%;
-      max-width: 600px;
-    }
+.box {
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+}
 
-    .logo {
-      font-size: 3.5rem;
-      font-weight: bold;
-      letter-spacing: 4px;
-      margin-bottom: 30px;
-    }
+.logo {
+  font-size: 3rem;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
 
-    input {
-      width: 100%;
-      padding: 16px;
-      font-size: 1.1rem;
-      border-radius: 30px;
-      border: none;
-      outline: none;
-      box-shadow: 0 0 20px rgba(90,124,255,0.4);
-    }
+input, button {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
 
-    button {
-      margin-top: 20px;
-      padding: 10px 22px;
-      border-radius: 20px;
-      border: none;
-      background: #5a7cff;
-      color: white;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-  </style>
+button {
+  background: #5a7cff;
+  color: white;
+  cursor: pointer;
+}
+
+.search {
+  display: none;
+}
+</style>
 </head>
 <body>
 
-<div class="container">
+<div class="box">
   <div class="logo">VORD VOID</div>
 
-  <form onsubmit="search(event)">
-    <input id="q" placeholder="Search the void..." autofocus>
-    <br>
-    <button type="submit">Search</button>
-  </form>
+  <!-- LOGIN -->
+  <div id="auth">
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search" id="search">
+    <input id="q" placeholder="Search the void...">
+    <button onclick="go()">Search</button>
+    <p id="welcome"></p>
+  </div>
 </div>
 
 <script>
-  function search(e) {
-    e.preventDefault();
-    const q = document.getElementById("q").value.trim();
-    if (!q) return;
+let currentUser = null;
 
-    window.location.href =
-      "results.html?q=" + encodeURIComponent(q);
-  }
+function loadUsers() {
+  return JSON.parse(localStorage.getItem("vv_users") || "[]");
+}
+
+function saveUsers(users) {
+  localStorage.setItem("vv_users", JSON.stringify(users));
+}
+
+function register() {
+  const u = user.value.trim();
+  const p = pass.value.trim();
+  if (!u || !p) return alert("Fill all fields");
+
+  const users = loadUsers();
+  if (users.find(x => x.username === u))
+    return alert("User exists");
+
+  users.push({ username: u, password: p, saved: [] });
+  saveUsers(users);
+  alert("Account created");
+}
+
+function login() {
+  const users = loadUsers();
+  const u = user.value.trim();
+  const p = pass.value.trim();
+
+  const found = users.find(x => x.username === u && x.password === p);
+  if (!found) return alert("Invalid login");
+
+  currentUser = found;
+  localStorage.setItem("vv_current", u);
+
+  auth.style.display = "none";
+  search.style.display = "block";
+  welcome.textContent = `Welcome, ${u}`;
+}
+
+function go() {
+  const q = document.getElementById("q").value.trim();
+  if (!q) return;
+  location.href = `results.html?q=${encodeURIComponent(q)}`;
+}
 </script>
 
 </body>
