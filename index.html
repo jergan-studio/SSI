@@ -19,33 +19,33 @@ body {
 
 .box {
   width: 90%;
-  max-width: 420px;
+  max-width: 600px;
   text-align: center;
 }
 
 .logo {
-  font-size: 3rem;
+  font-size: 3.5rem;
   letter-spacing: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-input, button {
+input {
   width: 100%;
-  padding: 14px;
-  margin-bottom: 10px;
-  border-radius: 20px;
+  padding: 16px;
+  border-radius: 30px;
   border: none;
   outline: none;
+  font-size: 1.1rem;
 }
 
 button {
+  margin-top: 20px;
+  padding: 12px 26px;
+  border-radius: 20px;
+  border: none;
   background: #5a7cff;
   color: white;
   cursor: pointer;
-}
-
-.search {
-  display: none;
 }
 </style>
 </head>
@@ -53,70 +53,21 @@ button {
 
 <div class="box">
   <div class="logo">VORD VOID</div>
-
-  <!-- LOGIN -->
-  <div id="auth">
-    <input id="user" placeholder="Username">
-    <input id="pass" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <button onclick="register()">Register</button>
-  </div>
-
-  <!-- SEARCH -->
-  <div class="search" id="search">
-    <input id="q" placeholder="Search the void...">
-    <button onclick="go()">Search</button>
-    <p id="welcome"></p>
-  </div>
+  <form onsubmit="go(event)">
+    <input id="q" placeholder="Search the void..." autofocus>
+    <button>Search</button>
+  </form>
 </div>
 
 <script>
-let currentUser = null;
-
-function loadUsers() {
-  return JSON.parse(localStorage.getItem("vv_users") || "[]");
-}
-
-function saveUsers(users) {
-  localStorage.setItem("vv_users", JSON.stringify(users));
-}
-
-function register() {
-  const u = user.value.trim();
-  const p = pass.value.trim();
-  if (!u || !p) return alert("Fill all fields");
-
-  const users = loadUsers();
-  if (users.find(x => x.username === u))
-    return alert("User exists");
-
-  users.push({ username: u, password: p, saved: [] });
-  saveUsers(users);
-  alert("Account created");
-}
-
-function login() {
-  const users = loadUsers();
-  const u = user.value.trim();
-  const p = pass.value.trim();
-
-  const found = users.find(x => x.username === u && x.password === p);
-  if (!found) return alert("Invalid login");
-
-  currentUser = found;
-  localStorage.setItem("vv_current", u);
-
-  auth.style.display = "none";
-  search.style.display = "block";
-  welcome.textContent = `Welcome, ${u}`;
-}
-
-function go() {
+function go(e) {
+  e.preventDefault();
   const q = document.getElementById("q").value.trim();
   if (!q) return;
-  location.href = `results.html?q=${encodeURIComponent(q)}`;
+  location.href = "results.html?q=" + encodeURIComponent(q);
 }
 </script>
 
 </body>
 </html>
+
