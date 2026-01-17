@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f1220;
+      color: white;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .result {
+      background: #1c2040;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .result h3 {
+      margin: 0 0 5px;
+    }
+
+    .result p {
+      margin: 0;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+<h2 id="title"></h2>
+<div id="results"></div>
+
+<script>
+  // get query from URL
+  const params = new URLSearchParams(window.location.search);
+  const query = params.get("q") || "";
+
+  document.getElementById("title").textContent =
+    `Results for "${query}"`;
+
+  // fake data (replace later)
+  const data = [
+    { title: "VORD VOID", desc: "AI that helps with HTML files" },
+    { title: "Giznoz", desc: "Experimental AI assistant" },
+    { title: "Square Dodge", desc: "2.5D HTML game" },
+    { title: "Lost In Mind", desc: "Psychological horror game" }
+  ];
+
+  const resultsDiv = document.getElementById("results");
+  const q = query.toLowerCase();
+
+  data.forEach(item => {
+    if (
+      item.title.toLowerCase().includes(q) ||
+      item.desc.toLowerCase().includes(q)
+    ) {
+      const div = document.createElement("div");
+      div.className = "result";
+      div.innerHTML = `
+        <h3>${item.title}</h3>
+        <p>${item.desc}</p>
+      `;
+      resultsDiv.appendChild(div);
+    }
+  });
+
+  if (!resultsDiv.innerHTML) {
+    resultsDiv.innerHTML =
+      "<p>No results found.</p>";
+  }
+</script>
+
+</body>
+</html>
