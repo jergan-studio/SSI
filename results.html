@@ -2,81 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Results</title>
+  <title>VORD VOID — Results</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #0f1220;
-      color: white;
-      padding: 20px;
-    }
-
-    h2 {
-      margin-bottom: 10px;
-    }
-
-    .result {
-      background: #1c2040;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
-    .result h3 {
-      margin: 0 0 5px;
-    }
-
-    .result p {
       margin: 0;
-      opacity: 0.8;
+      background: #0b0d1a;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid #222;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+    }
+
+    .results {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card {
+      background: #141730;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+    }
+
+    .web-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 14px;
+      border-radius: 15px;
+      background: #5a7cff;
+      color: white;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
 
-<h2 id="title"></h2>
-<div id="results"></div>
+<header>
+  <div class="logo" onclick="location.href='index.html'">VORD VOID</div>
+  <input id="searchBox">
+</header>
+
+<div class="results" id="results"></div>
 
 <script>
-  // get query from URL
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
   const query = params.get("q") || "";
-
-  document.getElementById("title").textContent =
-    `Results for "${query}"`;
-
-  // fake data (replace later)
-  const data = [
-    { title: "VORD VOID", desc: "AI that helps with HTML files" },
-    { title: "Giznoz", desc: "Experimental AI assistant" },
-    { title: "Square Dodge", desc: "2.5D HTML game" },
-    { title: "Lost In Mind", desc: "Psychological horror game" }
-  ];
+  document.getElementById("searchBox").value = query;
 
   const resultsDiv = document.getElementById("results");
-  const q = query.toLowerCase();
 
-  data.forEach(item => {
-    if (
-      item.title.toLowerCase().includes(q) ||
-      item.desc.toLowerCase().includes(q)
-    ) {
-      const div = document.createElement("div");
-      div.className = "result";
-      div.innerHTML = `
-        <h3>${item.title}</h3>
-        <p>${item.desc}</p>
+  // DuckDuckGo Instant Answer API (safe for client-side)
+  fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.AbstractText) {
+        resultsDiv.innerHTML += `
+          <div class="card">
+            <h3>${data.Heading}</h3>
+            <p>${data.AbstractText}</p>
+          </div>
+        `;
+      }
+
+      resultsDiv.innerHTML += `
+        <div class="card">
+          <h3>Search the Web</h3>
+          <p>View full results from DuckDuckGo</p>
+          <a class="web-btn"
+             href="https://duckduckgo.com/?q=${encodeURIComponent(query)}"
+             target="_blank">
+             Open DuckDuckGo Results
+          </a>
+        </div>
       `;
-      resultsDiv.appendChild(div);
+    });
+
+  document.getElementById("searchBox").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      location.href = "results.html?q=" +
+        encodeURIComponent(e.target.value);
     }
   });
-
-  if (!resultsDiv.innerHTML) {
-    resultsDiv.innerHTML =
-      "<p>No results found.</p>";
-  }
 </script>
 
 </body>
