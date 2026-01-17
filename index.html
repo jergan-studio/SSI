@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SSI</title>
+  <title>VORD VOID</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -12,34 +12,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0f1220;
-      font-family: Arial, sans-serif;
+      background: #0b0d1a;
       color: white;
+      font-family: Arial, sans-serif;
     }
 
-    .box {
+    .container {
       text-align: center;
       width: 90%;
-      max-width: 500px;
+      max-width: 600px;
     }
 
-    h1 {
-      margin-bottom: 20px;
+    .logo {
+      font-size: 3.5rem;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin-bottom: 30px;
     }
 
     input {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       font-size: 1.1rem;
-      border-radius: 8px;
+      border-radius: 30px;
       border: none;
       outline: none;
+      box-shadow: 0 0 20px rgba(90,124,255,0.4);
     }
 
     button {
-      margin-top: 12px;
-      padding: 12px 20px;
-      border-radius: 8px;
+      margin-top: 20px;
+      padding: 10px 22px;
+      border-radius: 20px;
       border: none;
       background: #5a7cff;
       color: white;
@@ -50,25 +54,24 @@
 </head>
 <body>
 
-<div class="box">
-  <h1>Search</h1>
+<div class="container">
+  <div class="logo">VORD VOID</div>
 
-  <form onsubmit="go(event)">
-    <input id="q" placeholder="Search..." autofocus>
+  <form onsubmit="search(event)">
+    <input id="q" placeholder="Search the void..." autofocus>
     <br>
     <button type="submit">Search</button>
   </form>
 </div>
 
 <script>
-  function go(e) {
+  function search(e) {
     e.preventDefault();
-    const query = document.getElementById("q").value.trim();
-    if (!query) return;
+    const q = document.getElementById("q").value.trim();
+    if (!q) return;
 
-    // send query to results page
     window.location.href =
-      "results.html?q=" + encodeURIComponent(query);
+      "results.html?q=" + encodeURIComponent(q);
   }
 </script>
 
