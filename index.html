@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini Search Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .search-box {
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #5a7cff;
+      color: white;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #3f5efb;
+    }
+
+    footer {
+      margin-top: 15px;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-box">
+    <h1>Search</h1>
+
+    <form onsubmit="search(event)">
+      <input
+        id="query"
+        type="text"
+        placeholder="Search the web..."
+        autofocus
+      />
+      <br />
+      <button type="submit">Search</button>
+    </form>
+
+    <footer>
+      Powered by DuckDuckGo
+    </footer>
+  </div>
+
+  <script>
+    function search(e) {
+      e.preventDefault();
+      const q = document.getElementById("query").value.trim();
+      if (!q) return;
+
+      const url = "https://duckduckgo.com/?q=" + encodeURIComponent(q);
+      window.location.href = url;
+    }
+  </script>
+
+</body>
+</html>
