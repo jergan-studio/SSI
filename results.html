@@ -1,117 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VORD VOID — Results</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>VORD VOID Results</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      background: #0b0d1a;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
+<style>
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #12002a, #000);
+  color: #aee7ff;
+  font-family: Arial, sans-serif;
+}
 
-    header {
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      border-bottom: 1px solid #222;
-    }
+header {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid #222;
+}
 
-    .logo {
-      font-weight: bold;
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
+input, select, button {
+  padding: 10px;
+  border-radius: 15px;
+  border: none;
+}
 
-    input {
-      flex: 1;
-      padding: 12px;
-      border-radius: 20px;
-      border: none;
-      outline: none;
-    }
+.ai {
+  margin: 20px;
+  padding: 15px;
+  border: 2px solid #5a7cff;
+  box-shadow: 0 0 25px #5a7cff;
+}
 
-    .results {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .card {
-      background: #141730;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px;
-    }
-
-    .web-btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 15px;
-      background: #5a7cff;
-      color: white;
-      text-decoration: none;
-    }
-  </style>
+.result {
+  margin: 15px;
+  padding: 15px;
+  background: #141730;
+  border-radius: 10px;
+}
+</style>
 </head>
 <body>
 
 <header>
-  <div class="logo" onclick="location.href='index.html'">VORD VOID</div>
   <input id="searchBox">
+  <select id="engine">
+    <option value="duck">DuckDuckGo</option>
+    <option value="local">Local</option>
+  </select>
+  <button onclick="saveSearch()">⭐ Save</button>
 </header>
 
-<div class="results" id="results"></div>
+<div class="ai" id="ai"></div>
+<div id="results"></div>
 
 <script>
-  const params = new URLSearchParams(location.search);
-  const query = params.get("q") || "";
-  document.getElementById("searchBox").value = query;
+const params = new URLSearchParams(location.search);
+const query = params.get("q") || "";
+searchBox.value = query;
 
-  const resultsDiv = document.getElementById("results");
+const LOCAL = [
+  { title: "VORD VOID", desc: "AI search engine", url: "#" },
+  { title: "Square Dodge", desc: "2.5D game", url: "#" }
+];
 
-  // DuckDuckGo Instant Answer API (safe for client-side)
-  fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.AbstractText) {
-        resultsDiv.innerHTML += `
-          <div class="card">
-            <h3>${data.Heading}</h3>
-            <p>${data.AbstractText}</p>
-          </div>
-        `;
-      }
+function currentUser() {
+  const u = localStorage.getItem("vv_current");
+  if (!u) return null;
+  return JSON.parse(localStorage.getItem("vv_users"))
+    .find(x => x.username === u);
+}
 
-      resultsDiv.innerHTML += `
-        <div class="card">
-          <h3>Search the Web</h3>
-          <p>View full results from DuckDuckGo</p>
-          <a class="web-btn"
-             href="https://duckduckgo.com/?q=${encodeURIComponent(query)}"
-             target="_blank">
-             Open DuckDuckGo Results
-          </a>
-        </div>
-      `;
-    });
+function saveSearch() {
+  const users = JSON.parse(localStorage.getItem("vv_users"));
+  const user = currentUser();
+  if (!user) return alert("Login first");
 
-  document.getElementById("searchBox").addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      location.href = "results.html?q=" +
-        encodeURIComponent(e.target.value);
+  user.saved.push(query);
+  localStorage.setItem("vv_users", JSON.stringify(users));
+  alert("Search saved");
+}
+
+function aiThink(snips) {
+  return snips.length
+    ? `VORD VOID THINKS: "${query}" relates to ${snips.join(", ")}`
+    : `VORD VOID found no strong signals.`;
+}
+
+async function run() {
+  let snippets = [];
+  results.innerHTML = "";
+
+  if (engine.value === "duck") {
+    const r = await fetch(
+      `https://api.duckduckgo.com/?q=${query}&format=json&no_html=1`
+    );
+    const d = await r.json();
+    if (d.AbstractText) {
+      snippets.push(d.Heading);
+      results.innerHTML += `
+        <div class="result">
+          <h3>${d.Heading}</h3>
+          <p>${d.AbstractText}</p>
+        </div>`;
     }
-  });
+  }
+
+  if (engine.value === "local") {
+    LOCAL.filter(x =>
+      x.title.toLowerCase().includes(query.toLowerCase())
+    ).forEach(r => {
+      snippets.push(r.title);
+      results.innerHTML += `
+        <div class="result">
+          <h3>${r.title}</h3>
+          <p>${r.desc}</p>
+        </div>`;
+    });
+  }
+
+  ai.textContent = aiThink(snippets);
+}
+
+searchBox.addEventListener("keydown", e => {
+  if (e.key === "Enter")
+    location.href = `results.html?q=${encodeURIComponent(searchBox.value)}`;
+});
+
+engine.onchange = run;
+run();
 </script>
 
 </body>
 </html>
+
